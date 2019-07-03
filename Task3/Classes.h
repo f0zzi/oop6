@@ -2,11 +2,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 class Time
 {
 private:
+	friend class Train;
 	int hour;
 	int min;
 public:
@@ -88,6 +90,17 @@ public:
 		SetDestination();
 		arriveTime.SetTime();
 	}
+	bool operator <(const Train& other)
+	{
+		if (arriveTime.hour == other.arriveTime.hour)
+			return arriveTime.min < other.arriveTime.min;
+		else
+			return arriveTime.hour < other.arriveTime.hour;
+	}
+	int GetNumber() const
+	{
+		return number;
+	}
 };
 int Train::counter = 1;
 class RailWay
@@ -107,9 +120,76 @@ public:
 		tmp.SetTrain();
 		trains.push_back(tmp);
 	}
+	void RemoveTrain()
+	{
+		if (trains.size() > 1)
+		{
+			int number;
+			bool found = false;
+			do
+			{
+				cout << "Enter train number to remove: ";
+				cin >> number;
+				for (size_t i = 0; i < trains.size(); i++)
+				{
+					if (trains[i].GetNumber() == number)
+					{
+						trains.erase(trains.begin() + i);
+						found = true;
+						break;
+					}
+				}
+				cout << "Invalid number. Try again.\n";
+			} while (!found);
+		}
+		else if (trains.size() == 1)
+			trains.erase(trains.begin());
+		else
+		{
+			cout << "There no trains to remove.\n";
+			system("pause");
+		}
+	}
+	void EditTrain()
+	{
+		if (trains.size() > 1)
+		{
+			int number;
+			bool found = false;
+			do
+			{
+				cout << "Enter train number to edit: ";
+				cin >> number;
+				for (size_t i = 0; i < trains.size(); i++)
+				{
+					if (trains[i].GetNumber() == number)
+					{
+						trains[i].SetTrain();
+						found = true;
+						break;
+					}
+				}
+				cout << "Invalid number. Try again.\n";
+			} while (!found);
+		}
+		else if (trains.size() == 1)
+			trains[0].SetTrain();
+		else
+		{
+			cout << "There no trains to edit.\n";
+			system("pause");
+		}
+	}
 	void ShowShedule()
 	{
-		for (Train elem : trains)
-			elem.ShowInfo();
+		if (trains.size() > 0)
+		{
+			sort(trains.begin(), trains.end());
+			for (Train elem : trains)
+				elem.ShowInfo();
+		}
+		else
+			cout << "------------------  SORRY NO TRAINS FOR TODAY  ---------------------\n";
+		cout << endl;
 	}
 };
